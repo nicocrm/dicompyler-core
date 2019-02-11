@@ -288,7 +288,7 @@ class DVH(object):
     @property
     def mean(self):
         """Return the mean dose."""
-        if self.counts.size == 1:
+        if self.counts.size <= 1:
             return 0
         diff = self.differential
         # Find the area under the differential histogram
