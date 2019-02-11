@@ -61,7 +61,7 @@ class DVH(object):
 
     @classmethod
     def from_dicom_dvh(cls, dataset, roi_num, rx_dose=None, name=None,
-            color=None):
+                       color=None):
         """Initialization for a DVH from a pydicom RT Dose DVH sequence."""
         sequence_num = -1
         for i, d in enumerate(dataset.DVHSequence):
@@ -266,7 +266,11 @@ class DVH(object):
             return 0
         diff = self.differential
         # Find the the maximum non-zero dose bin
-        return diff.bins[1:][diff.counts > 0][-1]
+        try:
+            return diff.bins[1:][diff.counts > 0][-1]
+        except IndexError:
+            # in case diff.counts is empty, or all 0...
+            return diff.bins[-1] if diff.bins else 0
 
     @property
     def min(self):
@@ -275,7 +279,11 @@ class DVH(object):
             return 0
         diff = self.differential
         # Find the the minimum non-zero dose bin
-        return diff.bins[1:][diff.counts > 0][0]
+        try:
+            return diff.bins[1:][diff.counts > 0][0]
+        except IndexError:
+            # in case diff.counts is empty, or all 0...
+            return diff.bins[0] if diff.bins else 0
 
     @property
     def mean(self):
@@ -469,7 +477,7 @@ class DVH(object):
         if volume == 100 and not volume_units:
             # Flipping the difference volume array
             reversed_difference_of_volume = np.flip(
-                    np.fabs(volume_counts - volume), 0)
+                np.fabs(volume_counts - volume), 0)
 
             # Index of the first minimum value in reversed array
             index_min_value = np.argmin(reversed_difference_of_volume)
