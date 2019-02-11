@@ -470,7 +470,7 @@ class DVH(object):
         else:
             volume_counts = self.absolute_volume(self.volume).counts
 
-        if volume > volume_counts.max():
+        if volume_counts.size == 0 or volume > volume_counts.max():
             return DVHValue(0.0, self.dose_units)
 
         # D100 case
